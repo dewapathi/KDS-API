@@ -1,4 +1,16 @@
 Django>=4.2,<5.0
+
+# Database
 psycopg2-binary>=2.9
-django-environ
-celery==5.4.0
+
+# Environment management
+django-environ>=0.11
+
+# REST API
+djangorestframework>=3.15
+
+# Celery for async tasks
+celery>=5.4
+
+# Redis for Celery broker
+redis>=5.0

@@ -18,3 +18,9 @@ GRANT ALL PRIVILEGES ON DATABASE kds_db TO kds;
 psql -h localhost -U myuser -d mydb
 
 python manage.py migrate
+
+dropdb
+createdb
+
+#Celery
+

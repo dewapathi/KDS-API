@@ -6,7 +6,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 DATABASES = {
-     "default": {
+    "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "kds_db"),
         "USER": os.environ.get("POSTGRES_USER", "kds"),
