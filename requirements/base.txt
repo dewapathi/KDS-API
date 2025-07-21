@@ -14,3 +14,6 @@ celery>=5.4
 
 # Redis for Celery broker
 redis>=5.0
+
+# jwt
+djangorestframework-simplejwt>=5.3,<6.0
