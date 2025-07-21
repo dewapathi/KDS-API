@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from core.models import User, Address
+from resources.signals import user_create
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -40,10 +41,8 @@ class UserSignUpSerializer(serializers.ModelSerializer):
         address_data = validated_data.pop("address")
         password = validated_data.pop("password")
 
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+        user_create.send_robust(
+            sender=self.__class__, user_data=validated_data, address_data=address_data, password=password
+        )
 
-        Address.objects.create(user=user, **address_data)
-        
-        return user
+        return validated_data
