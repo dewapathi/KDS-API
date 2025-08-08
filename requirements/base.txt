@@ -5,6 +5,7 @@ psycopg2-binary>=2.9
 
 # Environment management
 django-environ>=0.11
+python-dotenv>=1.0.0
 
 # REST API
 djangorestframework>=3.15

@@ -3,18 +3,28 @@ version: '3.8'
 services:
   web:
     build: .
-    ports: ["8000:8000"]
+    ports:
+      - "8000:8000"
     env_file: .env
-    depends_on:
-      - redis
-      - db
+    # depends_on:
+    #   - db
+    #   - redis
 
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  # db:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   ports:
+  #     - "5432:5432"   # expose DB if you want to connect from host (optional)
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
+    ports:
+      - "6379:6379"   # optional if you want to debug outside container
+
+volumes:
+  pgdata:

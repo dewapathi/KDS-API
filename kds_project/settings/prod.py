@@ -2,7 +2,6 @@ from .base import *
 import os
 
 DEBUG = False
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 DATABASES = {
     "default": {
@@ -15,6 +14,8 @@ DATABASES = {
     }
 }
 
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")

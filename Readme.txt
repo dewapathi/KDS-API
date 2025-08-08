@@ -24,3 +24,14 @@ createdb
 
 #Celery
 
+#Docker
+docker images
+docker ps
+docker ps -a
+docker logs <container_id>
+python manage.py migrate
+python manage.py createsuperuser
+
+docker-compose down -v
+docker-compose up --build
+docker-compose exec web python manage.py migrate

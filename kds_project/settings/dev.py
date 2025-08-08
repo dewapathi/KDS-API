@@ -3,7 +3,6 @@ from .base import *
 import os
 
 DEBUG = True
-ALLOWED_HOSTS = ["*"]
 
 DATABASES = {
     "default": {
@@ -15,3 +14,4 @@ DATABASES = {
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
+ALLOWED_HOSTS = ["*"]

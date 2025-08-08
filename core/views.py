@@ -8,7 +8,7 @@ from core import serializers
 
 class SignUpView(APIView):
     permission_classes = [AllowAny]
-
+    
     def post(self, request):
         serializer = serializers.UserSignUpSerializer(data=request.data)
         if serializer.is_valid():
