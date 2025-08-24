@@ -38,3 +38,5 @@ docker-compose exec web python manage.py migrate
 
 #ecr updating
 
+#check pipeline
+
