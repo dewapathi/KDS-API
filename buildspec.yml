@@ -35,7 +35,7 @@ phases:
       - echo "Pushing image..."
       - docker push "$REPO_URI:$IMAGE_TAG"
       - echo "Generating imagedefinitions.json"
-      # 'name' must match your ECS task definition container name exactly
+      # 'name' must exactly match your ECS Task Definition CONTAINER name
       - printf '[{"name":"kds-api","imageUri":"%s"}]\n' "$REPO_URI:$IMAGE_TAG" > imagedefinitions.json
 
 artifacts:
