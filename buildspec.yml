@@ -7,7 +7,7 @@ env:
     AWS_ACCOUNT_ID: "058188477434"
     IMAGE_REPO_NAME: "kds-api"
     IMAGE_TAG: "latest"
-    APP_DIR: KDS-API
+    APP_DIR: KDS-API   # optional hint; script will fall back to root
 
 phases:
   pre_build:
@@ -16,18 +16,31 @@ phases:
       - aws --version
       - ECR_REGISTRY="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
       - REPO_URI="$ECR_REGISTRY/$IMAGE_REPO_NAME"
-      - |
-        aws ecr get-login-password --region "$AWS_DEFAULT_REGION" \
-        | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+      - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
       - echo "Ensuring ECR repo exists (ok if it already exists)..."
-      - |
-        aws ecr describe-repositories --repository-names "$IMAGE_REPO_NAME" \
-        || aws ecr create-repository --repository-name "$IMAGE_REPO_NAME"
+      - aws ecr describe-repositories --repository-names "$IMAGE_REPO_NAME" || aws ecr create-repository --repository-name "$IMAGE_REPO_NAME"
 
   build:
     commands:
       - echo "Build started on $(date)"
-      - docker build -f "$APP_DIR/Dockerfile" -t "$IMAGE_REPO_NAME:$IMAGE_TAG" "$APP_DIR"
+      - echo "CODEBUILD_SRC_DIR=$CODEBUILD_SRC_DIR"
+      - echo "== ls -la at repo root ==" && ls -la
+      - echo "== tree (depth 3) ==" && find . -maxdepth 3 -print | sed 's#^\./##' | sort
+      - |
+          set -e
+          # Prefer APP_DIR/Dockerfile, else root Dockerfile, else search
+          if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/Dockerfile" ]; then
+            DF="$APP_DIR/Dockerfile"; CTX="$APP_DIR"
+          elif [ -f "Dockerfile" ]; then
+            DF="Dockerfile"; CTX="."
+          else
+            DF="$(find . -maxdepth 4 -type f -iname 'dockerfile' -print -quit)"
+            [ -n "$DF" ] || { echo "ERROR: No Dockerfile found."; exit 1; }
+            CTX="$(dirname "$DF")"
+          fi
+          echo "Using Dockerfile: $DF"
+          echo "Build context:   $CTX"
+          docker build -f "$DF" -t "$IMAGE_REPO_NAME:$IMAGE_TAG" "$CTX"
       - docker tag "$IMAGE_REPO_NAME:$IMAGE_TAG" "$REPO_URI:$IMAGE_TAG"
 
   post_build:
@@ -35,8 +48,8 @@ phases:
       - echo "Pushing image..."
       - docker push "$REPO_URI:$IMAGE_TAG"
       - echo "Generating imagedefinitions.json"
-      # 'name' must exactly match your ECS Task Definition CONTAINER name
       - printf '[{"name":"kds-api","imageUri":"%s"}]\n' "$REPO_URI:$IMAGE_TAG" > imagedefinitions.json
+      - echo "== imagedefinitions.json ==" && cat imagedefinitions.json
 
 artifacts:
   files:
