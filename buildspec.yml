@@ -7,6 +7,7 @@ env:
     AWS_ACCOUNT_ID: "058188477434"
     IMAGE_REPO_NAME: "kds-api"
     IMAGE_TAG: "latest"
+    APP_DIR: KDS-API
 
 phases:
   pre_build:
@@ -15,15 +16,18 @@ phases:
       - aws --version
       - ECR_REGISTRY="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
       - REPO_URI="$ECR_REGISTRY/$IMAGE_REPO_NAME"
-      - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+      - |
+        aws ecr get-login-password --region "$AWS_DEFAULT_REGION" \
+        | docker login --username AWS --password-stdin "$ECR_REGISTRY"
       - echo "Ensuring ECR repo exists (ok if it already exists)..."
-      - aws ecr describe-repositories --repository-names "$IMAGE_REPO_NAME" || aws ecr create-repository --repository-name "$IMAGE_REPO_NAME"
+      - |
+        aws ecr describe-repositories --repository-names "$IMAGE_REPO_NAME" \
+        || aws ecr create-repository --repository-name "$IMAGE_REPO_NAME"
 
   build:
     commands:
       - echo "Build started on $(date)"
-      - ls -la
-      - docker build -t "$IMAGE_REPO_NAME:$IMAGE_TAG" .
+      - docker build -f "$APP_DIR/Dockerfile" -t "$IMAGE_REPO_NAME:$IMAGE_TAG" "$APP_DIR"
       - docker tag "$IMAGE_REPO_NAME:$IMAGE_TAG" "$REPO_URI:$IMAGE_TAG"
 
   post_build:
@@ -31,6 +35,7 @@ phases:
       - echo "Pushing image..."
       - docker push "$REPO_URI:$IMAGE_TAG"
       - echo "Generating imagedefinitions.json"
+      # 'name' must exactly match your ECS Task Definition CONTAINER name
       - printf '[{"name":"kds-api","imageUri":"%s"}]\n' "$REPO_URI:$IMAGE_TAG" > imagedefinitions.json
 
 artifacts:
